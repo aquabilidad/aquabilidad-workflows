@@ -13,17 +13,17 @@ from datetime import datetime, timedelta
 # Import CivicStream workflow components
 # Note: In a real plugin, these would be imported from the installed CivicStream package
 try:
-    from civicstream.workflows.base import (
-        ActionStep, ConditionalStep, ApprovalStep, IntegrationStep, TerminalStep
+    from app.workflows.base import (
+        ActionStep, ConditionalStep, ApprovalStep, IntegrationStep, TerminalStep, ValidationResult
     )
-    from civicstream.workflows.workflow import Workflow
+    from app.workflows.workflow import Workflow
 except ImportError:
     # Fallback for development - import from relative path
     import sys
     import os
     sys.path.append(os.path.join(os.path.dirname(__file__), '../../backend/app'))
     from workflows.base import (
-        ActionStep, ConditionalStep, ApprovalStep, IntegrationStep, TerminalStep
+        ActionStep, ConditionalStep, ApprovalStep, IntegrationStep, TerminalStep, ValidationResult
     )
     from workflows.workflow import Workflow
 
@@ -257,7 +257,7 @@ def create_fishing_permit_workflow() -> Workflow:
         step_id="process_payment",
         name="Process Permit Payment",
         description="Process permit fee payment",
-        service="payment_gateway",
+        service_name="payment_gateway",
         endpoint="/process",
         method="POST"
     )
@@ -292,7 +292,7 @@ def create_fishing_permit_workflow() -> Workflow:
         step_id="blockchain_record",
         name="Record on Blockchain",
         description="Record permit on blockchain for transparency",
-        service="blockchain_service",
+        service_name="blockchain_service",
         endpoint="/record",
         method="POST"
     )
@@ -536,7 +536,7 @@ def create_catch_reporting_workflow() -> Workflow:
         step_id="record_blockchain",
         name="Record on Blockchain",
         description="Record catch data on blockchain",
-        service="blockchain_service",
+        service_name="blockchain_service",
         endpoint="/record_catch",
         method="POST"
     )
@@ -693,7 +693,7 @@ def create_traceability_workflow() -> Workflow:
         step_id="record_traceability",
         name="Record Traceability Chain",
         description="Record full traceability chain on blockchain",
-        service="blockchain_service",
+        service_name="blockchain_service",
         endpoint="/record_traceability",
         method="POST"
     )
