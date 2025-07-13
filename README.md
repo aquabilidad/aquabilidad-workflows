@@ -32,7 +32,7 @@ curl -X POST http://localhost:8000/api/v1/plugins/add \
   -H "Content-Type: application/json" \
   -d '{
     "name": "aquabilidad-workflows",
-    "repo_url": "https://github.com/aquabilidad/aquabilidad-workflows"
+    "repo_url": "https://github.com/aquabilidad/aquabilidad-workflows.git"
   }'
 ```
 
@@ -41,7 +41,7 @@ Add to your `plugins.yaml`:
 ```yaml
 plugins:
   - name: aquabilidad-workflows
-    repo_url: https://github.com/aquabilidad/aquabilidad-workflows
+    repo_url: https://github.com/aquabilidad/aquabilidad-workflows.git
     enabled: true
 ```
 
