@@ -196,6 +196,77 @@ def create_fishing_permit_workflow() -> Workflow:
     )
     
     # Define steps
+    # CITIZEN DATA COLLECTION: Initial application data
+    step_collect_initial_data = ActionStep(
+        step_id="collect_initial_application_data",
+        name="Collect Initial Application Data", 
+        description="Collect basic fisher and vessel information from citizen",
+        action=lambda instance, context: {"status": "awaiting_input"},
+        requires_citizen_input=True,
+        input_form={
+            "title": "Commercial Fishing Permit Application",
+            "description": "Please provide your basic information to start your fishing permit application.",
+            "fields": [
+                {
+                    "id": "fisher_name",
+                    "name": "fisher_name",
+                    "label": "Full Name",
+                    "type": "text",
+                    "required": True,
+                    "placeholder": "Enter your full legal name",
+                    "validation": {
+                        "minLength": 2,
+                        "maxLength": 100
+                    },
+                    "helpText": "Your full legal name as it appears on your ID"
+                },
+                {
+                    "id": "email",
+                    "name": "email", 
+                    "label": "Email Address",
+                    "type": "email",
+                    "required": True,
+                    "placeholder": "your.email@example.com",
+                    "helpText": "We'll use this to send you updates about your application"
+                },
+                {
+                    "id": "phone",
+                    "name": "phone",
+                    "label": "Phone Number",
+                    "type": "phone",
+                    "required": True,
+                    "placeholder": "+1 (555) 123-4567",
+                    "validation": {
+                        "pattern": "^[+]?[1-9]\\d{1,14}$"
+                    },
+                    "helpText": "Include country code for international numbers"
+                },
+                {
+                    "id": "commercial_license",
+                    "name": "commercial_license",
+                    "label": "Commercial Fishing License Number",
+                    "type": "text",
+                    "required": True,
+                    "placeholder": "CF123456789",
+                    "validation": {
+                        "pattern": "^CF[0-9]{8,12}$",
+                        "minLength": 10,
+                        "maxLength": 14
+                    },
+                    "helpText": "Your commercial fishing license number (starts with CF)"
+                },
+                {
+                    "id": "license_document",
+                    "name": "license_document",
+                    "label": "Commercial License Document",
+                    "type": "file",
+                    "required": True,
+                    "helpText": "Upload a clear photo or scan of your commercial fishing license"
+                }
+            ]
+        }
+    )
+
     step_validate_identity = ActionStep(
         step_id="validate_identity",
         name="Validate Fisher Identity",
@@ -210,6 +281,93 @@ def create_fishing_permit_workflow() -> Workflow:
         description="Check if identity verification passed"
     )
     
+    # CITIZEN DATA COLLECTION: Vessel information
+    step_collect_vessel_data = ActionStep(
+        step_id="collect_vessel_information",
+        name="Collect Vessel Information",
+        description="Collect detailed vessel information and documentation",
+        action=lambda instance, context: {"status": "awaiting_input"},
+        requires_citizen_input=True,
+        input_form={
+            "title": "Vessel Information",
+            "description": "Please provide detailed information about your fishing vessel.",
+            "fields": [
+                {
+                    "id": "vessel_name",
+                    "name": "vessel_name",
+                    "label": "Vessel Name",
+                    "type": "text",
+                    "required": True,
+                    "placeholder": "Enter your vessel's name",
+                    "validation": {
+                        "minLength": 2,
+                        "maxLength": 50
+                    },
+                    "helpText": "The official name of your fishing vessel"
+                },
+                {
+                    "id": "vessel_registration",
+                    "name": "vessel_registration",
+                    "label": "Vessel Registration Number",
+                    "type": "text",
+                    "required": True,
+                    "placeholder": "VR123456789",
+                    "validation": {
+                        "pattern": "^VR[0-9]{8,12}$",
+                        "minLength": 10,
+                        "maxLength": 14
+                    },
+                    "helpText": "Your vessel registration number (starts with VR)"
+                },
+                {
+                    "id": "vessel_type",
+                    "name": "vessel_type",
+                    "label": "Vessel Type",
+                    "type": "select",
+                    "required": True,
+                    "options": [
+                        "Fishing Trawler",
+                        "Longline Vessel", 
+                        "Seine Net Boat",
+                        "Crab Boat",
+                        "Lobster Boat",
+                        "Multi-purpose Fishing Vessel",
+                        "Other"
+                    ],
+                    "helpText": "Select the type of fishing vessel you operate"
+                },
+                {
+                    "id": "vessel_length",
+                    "name": "vessel_length",
+                    "label": "Vessel Length (meters)",
+                    "type": "number",
+                    "required": True,
+                    "validation": {
+                        "min": 3,
+                        "max": 200
+                    },
+                    "helpText": "Length of your vessel in meters"
+                },
+                {
+                    "id": "vessel_registration_document",
+                    "name": "vessel_registration_document",
+                    "label": "Vessel Registration Certificate",
+                    "type": "file",
+                    "required": True,
+                    "helpText": "Upload your vessel registration certificate"
+                },
+                {
+                    "id": "vessel_inspection_certificate",
+                    "name": "vessel_inspection_certificate", 
+                    "label": "Latest Safety Inspection Certificate",
+                    "type": "file",
+                    "required": True,
+                    "helpText": "Upload your most recent vessel safety inspection certificate"
+                }
+            ]
+        }
+    )
+
     step_verify_vessel = ActionStep(
         step_id="verify_vessel",
         name="Verify Vessel Registration",
@@ -224,6 +382,107 @@ def create_fishing_permit_workflow() -> Workflow:
         description="Check if vessel verification passed"
     )
     
+    # CITIZEN DATA COLLECTION: Safety equipment and fishing zones
+    step_collect_safety_and_zones = ActionStep(
+        step_id="collect_safety_equipment_and_zones",
+        name="Safety Equipment & Fishing Zones",
+        description="Collect safety equipment inventory and requested fishing zones",
+        action=lambda instance, context: {"status": "awaiting_input"},
+        requires_citizen_input=True,
+        input_form={
+            "title": "Safety Equipment & Fishing Zone Selection",
+            "description": "Please confirm your safety equipment and select your desired fishing zones.",
+            "fields": [
+                {
+                    "id": "safety_equipment",
+                    "name": "safety_equipment",
+                    "label": "Available Safety Equipment",
+                    "type": "select",
+                    "required": True,
+                    "options": [
+                        "life_jackets",
+                        "emergency_beacon", 
+                        "fire_extinguisher",
+                        "first_aid_kit",
+                        "radio_communication",
+                        "gps_system",
+                        "life_rafts",
+                        "flares",
+                        "emergency_food_water"
+                    ],
+                    "helpText": "Select all safety equipment available on your vessel"
+                },
+                {
+                    "id": "safety_equipment_photos",
+                    "name": "safety_equipment_photos",
+                    "label": "Safety Equipment Photos",
+                    "type": "file",
+                    "required": True,
+                    "helpText": "Upload photos showing your vessel's safety equipment"
+                },
+                {
+                    "id": "requested_zones",
+                    "name": "requested_zones",
+                    "label": "Requested Fishing Zones",
+                    "type": "select",
+                    "required": True,
+                    "options": [
+                        "ZONE_A - Coastal Waters (0-12 nautical miles)",
+                        "ZONE_B - Continental Shelf (12-50 nautical miles)",
+                        "ZONE_C - Deep Sea (50+ nautical miles)",
+                        "SUSTAINABLE_1 - Protected Area 1 (Special Permit Required)",
+                        "SUSTAINABLE_2 - Protected Area 2 (Seasonal Access)",
+                        "INTERNATIONAL_1 - International Waters Zone 1"
+                    ],
+                    "helpText": "Select the fishing zones you want access to"
+                },
+                {
+                    "id": "permit_type",
+                    "name": "permit_type",
+                    "label": "Permit Type",
+                    "type": "select",
+                    "required": True,
+                    "options": [
+                        "general",
+                        "specialized", 
+                        "sustainable"
+                    ],
+                    "helpText": "General: Standard fishing permit, Specialized: Specific species/methods, Sustainable: Eco-certified operations"
+                },
+                {
+                    "id": "target_species",
+                    "name": "target_species",
+                    "label": "Target Fish Species",
+                    "type": "textarea",
+                    "required": True,
+                    "placeholder": "List the main species you plan to catch (e.g., tuna, salmon, cod, etc.)",
+                    "validation": {
+                        "minLength": 10,
+                        "maxLength": 500
+                    },
+                    "helpText": "Describe the primary fish species you intend to target"
+                },
+                {
+                    "id": "fishing_methods",
+                    "name": "fishing_methods",
+                    "label": "Fishing Methods",
+                    "type": "select",
+                    "required": True,
+                    "options": [
+                        "Trawling",
+                        "Longlining",
+                        "Seine Netting",
+                        "Gillnetting",
+                        "Trap/Pot Fishing",
+                        "Handline/Rod Fishing",
+                        "Multiple Methods"
+                    ],
+                    "helpText": "Select your primary fishing method"
+                }
+            ]
+        }
+    )
+
     step_safety_inspection = ActionStep(
         step_id="safety_inspection",
         name="Safety Equipment Inspection",
@@ -238,6 +497,81 @@ def create_fishing_permit_workflow() -> Workflow:
         description="Check if safety requirements met"
     )
     
+    # NEW: Data collection step for citizen input
+    step_collect_documents = ActionStep(
+        step_id="collect_citizen_documents",
+        name="Collect Additional Documents",
+        description="Collect additional documentation from citizen",
+        action=lambda instance, context: {"status": "awaiting_input"},
+        requires_citizen_input=True,
+        input_form={
+            "title": "Additional Documentation Required",
+            "description": "Please provide the following additional documentation to complete your fishing permit application.",
+            "fields": [
+                {
+                    "id": "business_license",
+                    "name": "business_license",
+                    "label": "Business License",
+                    "type": "file",
+                    "required": True,
+                    "helpText": "Upload your current business license (PDF, JPG, PNG)"
+                },
+                {
+                    "id": "tax_id",
+                    "name": "tax_id", 
+                    "label": "Tax ID Number",
+                    "type": "text",
+                    "required": True,
+                    "placeholder": "Enter your tax identification number",
+                    "validation": {
+                        "pattern": "^[0-9]{9,12}$",
+                        "minLength": 9,
+                        "maxLength": 12
+                    },
+                    "helpText": "Your 9-12 digit tax identification number"
+                },
+                {
+                    "id": "fishing_experience",
+                    "name": "fishing_experience",
+                    "label": "Years of Commercial Fishing Experience",
+                    "type": "number",
+                    "required": True,
+                    "validation": {
+                        "min": 0,
+                        "max": 50
+                    },
+                    "helpText": "Number of years you have been commercially fishing"
+                },
+                {
+                    "id": "previous_violations",
+                    "name": "previous_violations",
+                    "label": "Previous Fishing Violations",
+                    "type": "select",
+                    "required": True,
+                    "options": ["None", "Minor violations (1-2)", "Major violations (3+)"],
+                    "helpText": "Select your fishing violation history"
+                },
+                {
+                    "id": "insurance_certificate",
+                    "name": "insurance_certificate",
+                    "label": "Marine Insurance Certificate",
+                    "type": "file",
+                    "required": True,
+                    "helpText": "Upload proof of marine insurance coverage"
+                },
+                {
+                    "id": "additional_comments",
+                    "name": "additional_comments",
+                    "label": "Additional Comments",
+                    "type": "textarea",
+                    "required": False,
+                    "placeholder": "Any additional information you'd like to provide...",
+                    "helpText": "Optional: Provide any additional information about your application"
+                }
+            ]
+        }
+    )
+
     step_calculate_quota = ActionStep(
         step_id="calculate_quota",
         name="Calculate Fishing Quota",
@@ -334,18 +668,20 @@ def create_fishing_permit_workflow() -> Workflow:
         description="Fishing permit successfully issued"
     )
     
-    # Define workflow flow
-    step_validate_identity >> step_identity_check
-    step_identity_check.when(identity_valid) >> step_verify_vessel
+    # Define workflow flow with citizen data collection
+    step_collect_initial_data >> step_validate_identity >> step_identity_check
+    step_identity_check.when(identity_valid) >> step_collect_vessel_data
     step_identity_check.when(lambda i, c: not identity_valid(i, c)) >> terminal_identity_failed
     
-    step_verify_vessel >> step_vessel_check
-    step_vessel_check.when(vessel_verified) >> step_safety_inspection
+    step_collect_vessel_data >> step_verify_vessel >> step_vessel_check
+    step_vessel_check.when(vessel_verified) >> step_collect_safety_and_zones
     step_vessel_check.when(lambda i, c: not vessel_verified(i, c)) >> terminal_vessel_failed
     
-    step_safety_inspection >> step_safety_check
-    step_safety_check.when(safety_compliant) >> step_calculate_quota
+    step_collect_safety_and_zones >> step_safety_inspection >> step_safety_check
+    step_safety_check.when(safety_compliant) >> step_collect_documents
     step_safety_check.when(lambda i, c: not safety_compliant(i, c)) >> terminal_safety_failed
+    
+    step_collect_documents >> step_calculate_quota
     
     step_calculate_quota >> step_calculate_fee >> step_payment >> step_payment_check
     step_payment_check.when(payment_completed) >> step_final_approval
@@ -358,17 +694,18 @@ def create_fishing_permit_workflow() -> Workflow:
     step_generate_permit_data >> step_blockchain_record >> terminal_success
     
     # Add all steps to workflow
-    for step in [step_validate_identity, step_identity_check, step_verify_vessel, 
-                step_vessel_check, step_safety_inspection, step_safety_check,
-                step_calculate_quota, step_calculate_fee, step_payment, 
+    for step in [step_collect_initial_data, step_validate_identity, step_identity_check, 
+                step_collect_vessel_data, step_verify_vessel, step_vessel_check,
+                step_collect_safety_and_zones, step_safety_inspection, step_safety_check,
+                step_collect_documents, step_calculate_quota, step_calculate_fee, step_payment, 
                 step_payment_check, step_final_approval, step_approval_check,
                 step_generate_permit_data, step_blockchain_record,
                 terminal_identity_failed, terminal_vessel_failed, terminal_safety_failed,
                 terminal_payment_failed, terminal_rejected, terminal_success]:
         workflow.add_step(step)
     
-    # Set start step
-    workflow.set_start(step_validate_identity)
+    # Set start step to begin with citizen data collection
+    workflow.set_start(step_collect_initial_data)
     
     # Build and validate
     workflow.build_graph()
@@ -485,6 +822,126 @@ def create_catch_reporting_workflow() -> Workflow:
     )
     
     # Define steps
+    # CITIZEN DATA COLLECTION: Daily catch reporting
+    step_collect_catch_data = ActionStep(
+        step_id="collect_daily_catch_data",
+        name="Daily Catch Report Submission",
+        description="Collect daily catch report from fishing vessel operator",
+        action=lambda instance, context: {"status": "awaiting_input"},
+        requires_citizen_input=True,
+        input_form={
+            "title": "Daily Catch Report",
+            "description": "Please submit your daily catch report within 24 hours of landing.",
+            "fields": [
+                {
+                    "id": "vessel_id",
+                    "name": "vessel_id",
+                    "label": "Vessel ID",
+                    "type": "text",
+                    "required": True,
+                    "placeholder": "Enter your vessel registration ID",
+                    "validation": {
+                        "pattern": "^VR[0-9]{8,12}$",
+                        "minLength": 10,
+                        "maxLength": 14
+                    },
+                    "helpText": "Your vessel registration ID (starts with VR)"
+                },
+                {
+                    "id": "catch_date",
+                    "name": "catch_date",
+                    "label": "Catch Date",
+                    "type": "date",
+                    "required": True,
+                    "helpText": "Date when the fish were caught"
+                },
+                {
+                    "id": "fishing_zone",
+                    "name": "fishing_zone",
+                    "label": "Fishing Zone",
+                    "type": "select",
+                    "required": True,
+                    "options": [
+                        "ZONE_A",
+                        "ZONE_B",
+                        "ZONE_C",
+                        "SUSTAINABLE_1",
+                        "SUSTAINABLE_2",
+                        "INTERNATIONAL_1"
+                    ],
+                    "helpText": "Zone where fishing activity took place"
+                },
+                {
+                    "id": "species_caught",
+                    "name": "species_caught",
+                    "label": "Species and Quantities Caught",
+                    "type": "textarea",
+                    "required": True,
+                    "placeholder": "List species and weights, e.g.:\nTuna: 150kg\nSalmon: 75kg\nCod: 200kg",
+                    "validation": {
+                        "minLength": 10,
+                        "maxLength": 1000
+                    },
+                    "helpText": "List all species caught with their weights in kilograms"
+                },
+                {
+                    "id": "gps_coordinates",
+                    "name": "gps_coordinates",
+                    "label": "GPS Coordinates",
+                    "type": "text",
+                    "required": True,
+                    "placeholder": "Latitude, Longitude (e.g., 40.7128, -74.0060)",
+                    "validation": {
+                        "pattern": "^-?\\d{1,3}\\.\\d+,\\s*-?\\d{1,3}\\.\\d+$"
+                    },
+                    "helpText": "GPS coordinates where fishing took place"
+                },
+                {
+                    "id": "catch_photos",
+                    "name": "catch_photos",
+                    "label": "Catch Documentation Photos",
+                    "type": "file",
+                    "required": True,
+                    "helpText": "Upload photos of your catch for verification"
+                },
+                {
+                    "id": "fishing_gear_used",
+                    "name": "fishing_gear_used",
+                    "label": "Fishing Gear Used",
+                    "type": "select",
+                    "required": True,
+                    "options": [
+                        "Trawl Net",
+                        "Longline",
+                        "Seine Net",
+                        "Gillnet",
+                        "Fishing Rod",
+                        "Trap/Pot",
+                        "Multiple Gear Types"
+                    ],
+                    "helpText": "Primary fishing gear used for this catch"
+                },
+                {
+                    "id": "weather_conditions",
+                    "name": "weather_conditions",
+                    "label": "Weather Conditions",
+                    "type": "select",
+                    "required": False,
+                    "options": [
+                        "Clear/Calm",
+                        "Partly Cloudy",
+                        "Overcast",
+                        "Light Rain",
+                        "Heavy Rain",
+                        "Windy",
+                        "Storm Conditions"
+                    ],
+                    "helpText": "Weather conditions during fishing (optional)"
+                }
+            ]
+        }
+    )
+
     step_validate_catch = ActionStep(
         step_id="validate_catch_data",
         name="Validate Catch Data",
@@ -566,8 +1023,8 @@ def create_catch_reporting_workflow() -> Workflow:
         description="Catch report submitted and verified"
     )
     
-    # Define workflow flow
-    step_validate_catch >> step_data_check
+    # Define workflow flow with citizen data collection
+    step_collect_catch_data >> step_validate_catch >> step_data_check
     step_data_check.when(catch_data_valid) >> step_verify_zone
     step_data_check.when(lambda i, c: not catch_data_valid(i, c)) >> terminal_invalid_data
     
@@ -582,14 +1039,14 @@ def create_catch_reporting_workflow() -> Workflow:
     step_generate_certificate >> step_blockchain_record >> terminal_success
     
     # Add all steps to workflow
-    for step in [step_validate_catch, step_data_check, step_verify_zone, step_zone_check,
+    for step in [step_collect_catch_data, step_validate_catch, step_data_check, step_verify_zone, step_zone_check,
                 step_check_quota, step_quota_check, step_generate_certificate, 
                 step_blockchain_record, terminal_invalid_data, terminal_unauthorized_zone,
                 terminal_quota_exceeded, terminal_success]:
         workflow.add_step(step)
     
-    # Set start step
-    workflow.set_start(step_validate_catch)
+    # Set start step to begin with citizen data collection
+    workflow.set_start(step_collect_catch_data)
     
     # Build and validate
     workflow.build_graph()
